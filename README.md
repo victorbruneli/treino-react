@@ -1,1 +1,2 @@
-# Treinando Funções em React
+# Treino-react
+Treinando funções em react.
