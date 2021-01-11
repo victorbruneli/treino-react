@@ -1,24 +1,43 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
+
+interface Player
+{
+id:number, 
+nome:string
+}
+
 
 const Componente = () => {
-  const [players, setPlayers] = useState([
-      {id: 1, nome: 'Player 1 - '},
-      {id: 2, nome: 'Player 2 - '},
-      {id: 3, nome: 'Player 3 - '},
-      {id: 4, nome: 'Player 4 - '},
-      {id: 5, nome: 'Player 5 - '},
-  ]);
+  const [players, setPlayers] = useState<Player[]>([]);
   const [namePlayer, setNamePlayer] = useState('');
   const [editPlayer, setEditPlayer] = useState({id:0, nome:''});
+  
 
+  useEffect(() => {
+    if (localStorage) {
+      const playerString = localStorage.getItem('players');
+      if (playerString) {
+        setPlayers(JSON.parse(playerString));
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (localStorage) {
+      const playersString = JSON.stringify(players);
+      localStorage.setItem('players', playersString);
+    }
+  }, [players]);
+
+  
   //add player
   function AddPlayer(addID:any){
     addID.preventDefault();
-    if(namePlayer !== ''){
-      setPlayers([...players, {id: Date.now(), nome: namePlayer }]);
+    if(namePlayer.trim() !== ''){
+      setPlayers([...players, {id: Date.now(), nome: namePlayer.trim() }]);
       setNamePlayer('');
     }else{
       alert('erro!');
@@ -46,11 +65,14 @@ const Componente = () => {
   };
   
   //remove Player
-  function removePlayer(idPessoa:any){
+  function removePlayer(idPlayer:any){
+    const filteredPlayer = players.filter(p => p.id !== idPlayer);
+
+    setPlayers(filteredPlayer);
   };
 
   //remove ALL
-  function removeAllPlayer(idPessoa:any){
+  function removeAllPlayer(idPlayer:any){
     return setPlayers([]);
   };
 
@@ -69,7 +91,7 @@ const Componente = () => {
               <label htmlFor="nome">Nome:</label>
               <input id="nome" type="text" value={namePlayer} onChange={addID => setNamePlayer(addID.target.value)}/>
               <button type="submit">Adicionar Player</button>
-              <button type="button" onClick = {() => removeAllPlayer(players)}>Remove all Players</button>
+              <button type="button" onClick = {() => removeAllPlayer(players)}>Remove todos</button>
         </form>
         {editPlayer.id !== 0 &&(
                 <form onSubmit={(addID) => editaPlayer(addID)}>
